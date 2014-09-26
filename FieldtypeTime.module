@@ -29,8 +29,7 @@ class FieldtypeTime extends FieldtypeText
 
 
     /**
-     * Return all predefined PHP date() formats for use as times
-     *
+     * Access our defined time formats & descriptions.
      */
     static public function getTimeFormats()
     {
@@ -105,10 +104,10 @@ class FieldtypeTime extends FieldtypeText
     /**
      * Converts an array of time parts into a DB time string.
      */
-    public static function partsToDBTime(array $parts)
+    public static function partsToDBTime(array $parts, $glue=':')
     {
         $sign = array_shift($parts);
-        $dbtime = $sign . implode(':', $parts);
+        $dbtime = $sign . implode($glue, $parts);
 
         return $dbtime;
     }
@@ -164,7 +163,7 @@ class FieldtypeTime extends FieldtypeText
     /**
      * Given a format, converts the given $time to it.
      */
-    static public function timeToFormattedString($time, $format)
+    static public function timeToFormattedString($time, $format, $use_colons)
     {
         if (empty($time)) {
             $time = '00:00:00';
@@ -174,9 +173,11 @@ class FieldtypeTime extends FieldtypeText
             $format = 'HH24MMSS';
         }
 
-        //$time = $this->_sanitizeValue($time);
         $parts = self::getTimeParts($time);
         $val   = $time;
+
+        $glue = ($use_colons) ? ':' : '';
+
 
         switch ($format) {
             case "SSS":
@@ -204,35 +205,35 @@ class FieldtypeTime extends FieldtypeText
                 if (!self::is24($parts['hours']) || !self::is60($parts['mins'])) {
                     return $str;
                 }
-                $val = $parts['hours'] . ':' . $parts['mins'];
+                $val = $parts['hours'] . $glue . $parts['mins'];
                 break;
 
             case 'HHHMM':
                 if (!self::is60($parts['mins'])) {
                     return $str;
                 }
-                $val = $parts['hours'] . ':' . $parts['mins'];
+                $val = $parts['hours'] . $glue . $parts['mins'];
                 break;
 
             case 'HH24MMSS':
                 if (!self::is24($parts['hours']) || !self::is60($parts['mins']) || !self::is60($parts['secs'])) {
                     return $str;
                 }
-                $val = $parts['hours'] . ':' . $parts['mins'] . ':' . $parts['secs'];
+                $val = $parts['hours'] . $glue . $parts['mins'] . $glue . $parts['secs'];
                 break;
 
             case 'HHHMMSS':
                 if (!self::is60($parts['mins']) || !self::is60($parts['secs'])) {
                     return $str;
                 }
-                $val = $parts['hours'] . ':' . $parts['mins'] . ':' . $parts['secs'];
+                $val = $parts['hours'] . $glue . $parts['mins'] . $glue . $parts['secs'];
                 break;
 
             case 'MMSS':
                 if (!self::is60($parts['mins']) || !self::is60($parts['secs'])) {
                     return $str;
                 }
-                $val = $parts['mins'] . ':' . $parts['secs'];
+                $val = $parts['mins'] . $glue . $parts['secs'];
                 break;
         }
 
@@ -303,29 +304,11 @@ class FieldtypeTime extends FieldtypeText
                 $parts['hours'] = (int) $str;
                 break;
 
-
             case 'HH24':
                 $parts['hours'] = self::limit($str, 24);
                 break;
 
             case 'HH24MM':
-                /* if (false === strpos($str, ':')) { */
-                /*     // Try injecting colons every 2 chars from the right... */
-                /*     $bits = str_split(strrev($str), 2); */
-                /*     $bits = array_reverse(array_map('strrev', $bits)); */
-                /* } else { */
-                /*     $bits = explode(':', $str); */
-                /* } */
-                /* $count = count($bits); */
-
-                /* /** */
-                /*  * Inject extra bits for mins if needed... */
-                /*  *1/ */
-                /* switch ($count) { */
-                /* case 1: */
-                /*     $bits[] = '00'; */
-                /* } */
-
                 $parts['hours'] = self::limit($bits[0], 24);
                 $parts['mins']  = self::limit($bits[1], 60);
                 break;
@@ -337,71 +320,17 @@ class FieldtypeTime extends FieldtypeText
                 break;
 
             case 'HHHMM':
-                /* if (false === strpos($str, ':')) { */
-                /*     // Try injecting colons every 2 chars from the right... */
-                /*     $bits = str_split(strrev($str), 2); */
-                /*     $bits = array_reverse(array_map('strrev', $bits)); */
-                /* } else { */
-                /*     $bits = explode(':', $str); */
-                /* } */
-                /* $count = count($bits); */
-
-                /* /** */
-                /*  * Inject extra bits for mins if needed... */
-                /*  *1/ */
-                /* switch ($count) { */
-                /* case 1: */
-                /*     $bits[] = '00'; */
-                /* } */
-
                 $parts['hours'] = $bits[0];
                 $parts['mins']  = self::limit($bits[1], 60);
                 break;
 
             case 'HHHMMSS':
-                /* if (false === strpos($str, ':')) { */
-                /*     // Try injecting colons every 2 chars from the right... */
-                /*     $bits = str_split(strrev($str), 2); */
-                /*     $bits = array_reverse(array_map('strrev', $bits)); */
-                /* } else { */
-                /*     $bits = explode(':', $str); */
-                /* } */
-                /* $count = count($bits); */
-
-                /* /** */
-                /*  * Inject extra bits for mins and seconds as needed... */
-                /*  *1/ */
-                /* switch ($count) { */
-                /* case 2: */
-                /*     $bits[] = '00'; */
-                /* case 1: */
-                /*     $bits[] = '00'; */
-                /*     break; */
-                /* } */
-
                 $parts['hours'] = $bits[0];
                 $parts['mins']  = self::limit($bits[1], 60);
                 $parts['secs']  = self::limit($bits[2], 60);
                 break;
 
             case 'MMSS':
-                /* if (false === strpos($str, ':')) { */
-                /*     // Try injecting colons every 2 chars from the right... */
-                /*     $bits = str_split(strrev($str), 2); */
-                /*     $bits = array_reverse(array_map('strrev', $bits)); */
-                /* } else { */
-                /*     $bits = explode(':', $str); */
-                /* } */
-                /* $count = count($bits); */
-
-                /* /** */
-                /*  * Inject extra bits for secs if needed... */
-                /*  *1/ */
-                /* switch ($count) { */
-                /* case 1: */
-                /*     $bits[] = '00'; */
-                /* } */
-
                 $parts['mins']  = self::limit($bits[0], 60);
                 $parts['secs']  = self::limit($bits[1], 60);
                 break;
@@ -507,7 +436,7 @@ class FieldtypeTime extends FieldtypeText
      */
     public function ___wakeupValue(Page $page, Field $field, $value)
     {
-        return $this->timeToFormattedString($value, $field->format);
+        return $this->timeToFormattedString($value, $field->format, $field->useColons);
     }
 
 
@@ -528,6 +457,25 @@ class FieldtypeTime extends FieldtypeText
             }
         }
         $inputfields->add($f);
+
+        // TODO Use this setting when displaying strings...
+		$f = $this->modules->get('InputfieldCheckbox');
+		$f->attr('name', 'useColons');
+		$f->label = $this->_('Use colons');
+		$f->description = $this->_('When checked, colons will be used when displaying time fields.');
+		$f->attr('value', 1);
+        if ($this->useColons) {
+            $f->attr('checked', 'checked');
+        }
+		$inputfields->append($f);
+
+		/* $f = $this->modules->get('InputfieldText'); */
+		/* $f->setAttribute('name', 'placeholder'); */
+		/* $f->label = $this->_('Placeholder Text'); */
+		/* $f->setAttribute('value', $this->attr('placeholder')); */
+		/* $f->description = $this->_('Optional placeholder phrase of text that appears in the field when blank.'); */
+		/* $f->collapsed = Inputfield::collapsedBlank; */
+		/* $inputfields->append($f); */
 
         return $inputfields;
     }
