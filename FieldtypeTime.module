@@ -1,0 +1,534 @@
+<?php
+
+/**
+ * ProcessWire Time Fieldtype
+ *
+ * Field that stores a time value.
+ * The underlying MySQL type allows a range from '-838:59:59' to '838:59:59'. The hours part may be so large
+ * because the TIME type can be used not only to represent a time of day (which must be less than 24 hours), but also
+ * elapsed time or a time interval between two events (which may be much greater than 24 hours, or even negative).
+ *
+ */
+class FieldtypeTime extends FieldtypeText
+{
+
+    const blank = "00:00:00";
+
+    public static function getModuleInfo()
+    {
+        return array(
+            'title'     => __('Fieldtype Time', __FILE__),
+            'summary'   => __('Stores a time in HHH:MM:SS format', __FILE__),
+            'version'   => 1,
+            'permanent' => false,
+            'autoload'  => false,
+            'singular'  => false,
+            'author'    => 'S. Dickinson, QBox.co',
+        );
+    }
+
+
+    /**
+     * Return all predefined PHP date() formats for use as times
+     *
+     */
+    static public function getTimeFormats()
+    {
+        return array(
+        'HH24'      => array(
+            'desc' => __("Hours [0-24]", __FILE__),
+        ),
+        'HH24MM'    => array(
+            'desc' => __("Hours (0-24) & minutes (00-59)", __FILE__),
+        ),
+        'HH24MMSS'  => array(
+            'desc' => __("Hours (0-24), minutes (00-59) & seconds (00-59)", __FILE__),
+        ),
+        'HHH'        => array(
+            'desc' => __("Hours (Integer 0-800)", __FILE__),
+        ),
+        'HHHMM'      => array(
+            'desc' => __("Hours (0-800) & minutes (00-59)", __FILE__),
+        ),
+        'HHHMMSS'    => array(
+            'desc' => __("Hours (0-800), minutes (00-59) & seconds (00-59)", __FILE__),
+        ),
+        'MMM'         => array(
+            'desc' => __("Minutes (Integer)", __FILE__),
+        ),
+        'SSS'         => array(
+            'desc' => __("Seconds (Integer)", __FILE__),
+        ),
+        'MMSS'       => array(
+            'desc' => __("Minutes (00-59) & seconds (00-59).", __FILE__),
+        ),
+    );
+
+    }
+
+
+    /**
+     * Returns an array of time parts.
+     */
+    public static function getTimeParts($t = null)
+    {
+        $parts = array(
+            'sign'  => '',
+            'hours' => '00',
+            'mins'  => '00',
+            'secs'  => '00',
+        );
+
+        if (is_string($t)) {
+            $t = trim($t);
+            $t = preg_replace('[^\d:-]', '', $t);
+            if (false !== strpos($t, ':')) {
+                $p = explode(':', $t);
+                if (3 === count($p)) {
+                    $parts['secs'] = $p[2];
+                    $parts['mins'] = $p[1];
+                    if ('-' === substr($p[0], 0, 1)) {
+                        $parts['sign'] = '-';
+                        $p[0] = ltrim($p[0], '-');
+                    }
+                    if (strlen($p[0])) {
+                        $parts['hours'] = $p[0];
+                    }
+                }
+            }
+        }
+
+        return $parts;
+    }
+
+
+    /**
+     * Converts an array of time parts into a DB time string.
+     */
+    public static function partsToDBTime(array $parts)
+    {
+        $sign = array_shift($parts);
+        $dbtime = $sign . implode(':', $parts);
+
+        return $dbtime;
+    }
+
+
+    /**
+     * Checks the hour part is within the 24 hour range.
+     */
+    public static function is24($val)
+    {
+        $lower_ok = (int) $val >= 0;
+        $upper_ok = (int) $val < 24;
+
+        return $lower_ok && $upper_ok;
+    }
+
+
+    /**
+     * Checks the $val is within the range 0-59 inclusive.
+     */
+    public static function is60($val)
+    {
+        $lower_ok = (int) $val >= 0;
+        $upper_ok = (int) $val < 60;
+
+        return $lower_ok && $upper_ok;
+    }
+
+    public static function limit($val, $max, $min=0)
+    {
+        $val = (int) $val;
+        $min = (int) $min;
+        $max = (int) $max;
+
+        if ($max <= $min) {
+            $max = $min + 1;
+        }
+
+        $lower_ok = $val >= $min;
+        $upper_ok = $val <  $max;
+
+        if (!$lower_ok) {
+            return $min;
+        }
+
+        if (!$upper_ok) {
+            return $max-1;
+        }
+
+        return $val;
+    }
+
+    /**
+     * Given a format, converts the given $time to it.
+     */
+    static public function timeToFormattedString($time, $format)
+    {
+        if (empty($time)) {
+            $time = '00:00:00';
+        }
+
+        if (empty($format)) {
+            $format = 'HH24MMSS';
+        }
+
+        //$time = $this->_sanitizeValue($time);
+        $parts = self::getTimeParts($time);
+        $val   = $time;
+
+        switch ($format) {
+            case "SSS":
+                $val  = (int) $parts['secs'];
+                $val += $parts['mins']  *   60;
+                $val += $parts['hours'] * 3600;
+                break;
+
+            case "MMM":
+                $val  = $parts['mins'];
+                $val += $parts['hours'] * 60;
+                break;
+
+            case 'HHH':
+                $val = $parts['hours'] * 1;
+                break;
+
+            case 'HH24':
+                if (!self::is24($parts['hours'])) {
+                    return $str;
+                }
+                break;
+
+            case 'HH24MM':
+                if (!self::is24($parts['hours']) || !self::is60($parts['mins'])) {
+                    return $str;
+                }
+                $val = $parts['hours'] . ':' . $parts['mins'];
+                break;
+
+            case 'HHHMM':
+                if (!self::is60($parts['mins'])) {
+                    return $str;
+                }
+                $val = $parts['hours'] . ':' . $parts['mins'];
+                break;
+
+            case 'HH24MMSS':
+                if (!self::is24($parts['hours']) || !self::is60($parts['mins']) || !self::is60($parts['secs'])) {
+                    return $str;
+                }
+                $val = $parts['hours'] . ':' . $parts['mins'] . ':' . $parts['secs'];
+                break;
+
+            case 'HHHMMSS':
+                if (!self::is60($parts['mins']) || !self::is60($parts['secs'])) {
+                    return $str;
+                }
+                $val = $parts['hours'] . ':' . $parts['mins'] . ':' . $parts['secs'];
+                break;
+
+            case 'MMSS':
+                if (!self::is60($parts['mins']) || !self::is60($parts['secs'])) {
+                    return $str;
+                }
+                $val = $parts['mins'] . ':' . $parts['secs'];
+                break;
+        }
+
+        if (is_int($val)) {
+            $val = "$val";
+        }
+
+        return $val;
+    }
+
+
+    /**
+     * Given an expected format convert the given string to DB time string
+     *
+     * @param string $str Time string
+     * @param string $format Expected format of the time string
+     * @return string
+     */
+    static public function formattedStringToTime($str, $format)
+    {
+        if (empty($str)) {
+            $str = '00:00:00';
+        }
+
+        if (empty($format)) {
+            $format = 'HH24MMSS';
+        }
+
+        $str = preg_replace("[^\d:-]", '', $str);
+        $parts = self::getTimeParts();
+
+        if (false === strpos($str, ':')) {
+            // Try splitting every 2 chars from the right...
+            $bits = str_split(strrev($str), 2);
+            $bits = array_reverse(array_map('strrev', $bits));
+        } else {
+            $bits = explode(':', $str);
+        }
+        $count = count($bits);
+
+        /**
+         * Inject extra bits for mins and seconds as needed...
+         */
+        switch ($count) {
+        case 2:
+            $bits[] = '00';
+        case 1:
+            $bits[] = '00';
+            break;
+        }
+
+        switch ($format) {
+            case "SSS":
+                $val = (int) $str;
+                $parts['hours'] = $val / 3600;
+                $parts['mins']  = $val / 60 % 60;
+                $parts['secs']  = $val % 60;
+                break;
+
+            case "MMM":
+                $val = (int) $str;
+                $val *= 60;
+                $parts['hours'] = $val / 3600;
+                $parts['mins']  = $val / 60 % 60;
+                break;
+
+            case 'HHH':
+                $parts['hours'] = (int) $str;
+                break;
+
+
+            case 'HH24':
+                $parts['hours'] = self::limit($str, 24);
+                break;
+
+            case 'HH24MM':
+                /* if (false === strpos($str, ':')) { */
+                /*     // Try injecting colons every 2 chars from the right... */
+                /*     $bits = str_split(strrev($str), 2); */
+                /*     $bits = array_reverse(array_map('strrev', $bits)); */
+                /* } else { */
+                /*     $bits = explode(':', $str); */
+                /* } */
+                /* $count = count($bits); */
+
+                /* /** */
+                /*  * Inject extra bits for mins if needed... */
+                /*  *1/ */
+                /* switch ($count) { */
+                /* case 1: */
+                /*     $bits[] = '00'; */
+                /* } */
+
+                $parts['hours'] = self::limit($bits[0], 24);
+                $parts['mins']  = self::limit($bits[1], 60);
+                break;
+
+            case 'HH24MMSS':
+                $parts['hours'] = self::limit($bits[0], 24);
+                $parts['mins']  = self::limit($bits[1], 60);
+                $parts['secs']  = self::limit($bits[2], 60);
+                break;
+
+            case 'HHHMM':
+                /* if (false === strpos($str, ':')) { */
+                /*     // Try injecting colons every 2 chars from the right... */
+                /*     $bits = str_split(strrev($str), 2); */
+                /*     $bits = array_reverse(array_map('strrev', $bits)); */
+                /* } else { */
+                /*     $bits = explode(':', $str); */
+                /* } */
+                /* $count = count($bits); */
+
+                /* /** */
+                /*  * Inject extra bits for mins if needed... */
+                /*  *1/ */
+                /* switch ($count) { */
+                /* case 1: */
+                /*     $bits[] = '00'; */
+                /* } */
+
+                $parts['hours'] = $bits[0];
+                $parts['mins']  = self::limit($bits[1], 60);
+                break;
+
+            case 'HHHMMSS':
+                /* if (false === strpos($str, ':')) { */
+                /*     // Try injecting colons every 2 chars from the right... */
+                /*     $bits = str_split(strrev($str), 2); */
+                /*     $bits = array_reverse(array_map('strrev', $bits)); */
+                /* } else { */
+                /*     $bits = explode(':', $str); */
+                /* } */
+                /* $count = count($bits); */
+
+                /* /** */
+                /*  * Inject extra bits for mins and seconds as needed... */
+                /*  *1/ */
+                /* switch ($count) { */
+                /* case 2: */
+                /*     $bits[] = '00'; */
+                /* case 1: */
+                /*     $bits[] = '00'; */
+                /*     break; */
+                /* } */
+
+                $parts['hours'] = $bits[0];
+                $parts['mins']  = self::limit($bits[1], 60);
+                $parts['secs']  = self::limit($bits[2], 60);
+                break;
+
+            case 'MMSS':
+                /* if (false === strpos($str, ':')) { */
+                /*     // Try injecting colons every 2 chars from the right... */
+                /*     $bits = str_split(strrev($str), 2); */
+                /*     $bits = array_reverse(array_map('strrev', $bits)); */
+                /* } else { */
+                /*     $bits = explode(':', $str); */
+                /* } */
+                /* $count = count($bits); */
+
+                /* /** */
+                /*  * Inject extra bits for secs if needed... */
+                /*  *1/ */
+                /* switch ($count) { */
+                /* case 1: */
+                /*     $bits[] = '00'; */
+                /* } */
+
+                $parts['mins']  = self::limit($bits[0], 60);
+                $parts['secs']  = self::limit($bits[1], 60);
+                break;
+
+        }
+
+        return self::partsToDBTime($parts);
+
+    }
+
+
+
+    /**
+     *
+     */
+    public function init()
+    {
+        parent::init();
+        $this->allowTextFormatters(false);
+    }
+
+
+    /**
+     *
+     */
+    public function getInputfield(Page $page, Field $field)
+    {
+        $inputfield = $this->modules->get('InputfieldTime');
+        $inputfield->class = $this->className();
+        return $inputfield;
+    }
+
+
+
+    /**
+     * Sanitize value
+     */
+    public function sanitizeValue(Page $page, Field $field, $value)
+    {
+        return $this->_sanitizeValue($value);
+    }
+
+
+
+    /**
+     * Common sanitise routine...
+     * Sanitize a value assumed to be a MySQL time format...
+     */
+    protected function _sanitizeValue($value)
+    {
+        if (empty($value)) {
+            return '00:00:00';
+        }
+
+        return preg_replace('#[^\d:-]#', '', $value);
+    }
+
+
+
+    /**
+     * Match a date/time value in the database, as used by PageFinder
+     */
+    public function getMatchQuery($query, $table, $subfield, $operator, $value)
+    {
+        $value = $this->_sanitizeValue($value);
+
+        $database = $this->wire('database');
+        if ($database->isOperator($operator)) {
+            $table = $database->escapeTable($table);
+            $subfield = $database->escapeCol($subfield);
+            $value = $database->escapeStr($value);
+            $query->where("$table.{$subfield}{$operator}'$value'");
+        }
+
+        return $query;
+    }
+
+
+    /**
+     *
+     */
+    public function getDatabaseSchema(Field $field)
+    {
+        $schema = parent::getDatabaseSchema($field);
+        $schema['data'] = 'time NOT NULL';
+        unset($schema['keys']['data_exact']);
+        $schema['keys']['data'] = 'KEY data (data)';
+        return $schema;
+    }
+
+
+    /**
+     * Convert value from time to formatted string
+     */
+    public function ___sleepValue(Page $page, Field $field, $value)
+    {
+        return $this->formattedStringToTime($value, $field->format);
+    }
+
+
+    /**
+     * Convert value from DB time field to formatted string
+     */
+    public function ___wakeupValue(Page $page, Field $field, $value)
+    {
+        return $this->timeToFormattedString($value, $field->format);
+    }
+
+
+    /**
+     * Field configuration screen
+     */
+    public function ___getConfigInputfields(Field $field)
+    {
+        $inputfields = parent::___getConfigInputfields($field);
+
+        $f = $this->modules->get('InputfieldSelect');
+        $f->attr('name', 'format');
+        $f->label = $this->_('Time Format');
+        foreach (self::getTimeFormats() as $format => $info) {
+            $f->addOption($format, $info['desc']);
+            if(strpos($field->format, $format) !== false) {
+                $f->attr('value', $format);
+            }
+        }
+        $inputfields->add($f);
+
+        return $inputfields;
+    }
+}
