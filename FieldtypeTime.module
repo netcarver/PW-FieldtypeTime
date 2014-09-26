@@ -458,11 +458,10 @@ class FieldtypeTime extends FieldtypeText
         }
         $inputfields->add($f);
 
-        // TODO Use this setting when displaying strings...
 		$f = $this->modules->get('InputfieldCheckbox');
 		$f->attr('name', 'useColons');
 		$f->label = $this->_('Use colons');
-		$f->description = $this->_('When checked, colons will be used when displaying time fields.');
+		$f->description = $this->_('When checked, colons will be output between the hours, minutes and seconds.');
 		$f->attr('value', 1);
         if ($this->useColons) {
             $f->attr('checked', 'checked');
