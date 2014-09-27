@@ -463,7 +463,7 @@ class FieldtypeTime extends FieldtypeText
 		$f->label = $this->_('Use colons');
 		$f->description = $this->_('When checked, colons will be output between the hours, minutes and seconds.');
 		$f->attr('value', 1);
-        if ($this->useColons) {
+        if ($field->useColons) {
             $f->attr('checked', 'checked');
         }
 		$inputfields->append($f);
