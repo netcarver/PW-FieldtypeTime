@@ -27,43 +27,52 @@ class FieldtypeTime extends FieldtypeText
         );
     }
 
+    static protected $formats = null;
 
     /**
      * Access our defined time formats & descriptions.
      */
-    static public function getTimeFormats()
+    static public function getTimeFormats($format = null)
     {
-        return array(
-        'HH24'      => array(
-            'desc' => __("Hours [0-24]", __FILE__),
-        ),
-        'HH24MM'    => array(
-            'desc' => __("Hours (0-24) & minutes (00-59)", __FILE__),
-        ),
-        'HH24MMSS'  => array(
-            'desc' => __("Hours (0-24), minutes (00-59) & seconds (00-59)", __FILE__),
-        ),
-        'HHH'        => array(
-            'desc' => __("Hours (Integer 0-800)", __FILE__),
-        ),
-        'HHHMM'      => array(
-            'desc' => __("Hours (0-800) & minutes (00-59)", __FILE__),
-        ),
-        'HHHMMSS'    => array(
-            'desc' => __("Hours (0-800), minutes (00-59) & seconds (00-59)", __FILE__),
-        ),
-        'MMM'         => array(
-            'desc' => __("Minutes (Integer)", __FILE__),
-        ),
-        'SSS'         => array(
-            'desc' => __("Seconds (Integer)", __FILE__),
-        ),
-        'MMSS'       => array(
-            'desc' => __("Minutes (00-59) & seconds (00-59).", __FILE__),
-        ),
-    );
+        if (null === self::$formats) {
+            self::$formats = array(
+                'HH24'      => array(
+                    'desc' => __("Hours (0-24)", __FILE__),
+                ),
+                'HH24MM'    => array(
+                    'desc' => __("Hours (0-24) & minutes (00-59)", __FILE__),
+                ),
+                'HH24MMSS'  => array(
+                    'desc' => __("Hours (0-24), minutes (00-59) & seconds (00-59)", __FILE__),
+                ),
+                'HHH'        => array(
+                    'desc' => __("Hours (Integer 0-800)", __FILE__),
+                ),
+                'HHHMM'      => array(
+                    'desc' => __("Hours (0-800) & minutes (00-59)", __FILE__),
+                ),
+                'HHHMMSS'    => array(
+                    'desc' => __("Hours (0-800), minutes (00-59) & seconds (00-59)", __FILE__),
+                ),
+                'MMM'         => array(
+                    'desc' => __("Minutes (Integer)", __FILE__),
+                ),
+                'SSS'         => array(
+                    'desc' => __("Seconds (Integer)", __FILE__),
+                ),
+                'MMSS'       => array(
+                    'desc' => __("Minutes (00-59) & seconds (00-59).", __FILE__),
+                ),
+            );
+        }
 
+        if (is_string($format) && !empty($format) && in_array($format, $formats)) {
+            return self::$formats[$format];
+        }
+
+        return self::$formats;
     }
+
 
 
     /**
