@@ -29,8 +29,8 @@ class InputfieldTime extends Inputfield
 		$this->attr('maxlength', 10);
 		$this->attr('placeholder', '');
 		$this->attr('pattern', '');
-		$this->set('format', 'HHMMSS-24');
-		$this->set('useColons', true);
+		//$this->set('format', 'HHMMSS-24');
+		//$this->set('useColons', true);
 	    parent::init();
     }
 
@@ -55,9 +55,6 @@ class InputfieldTime extends Inputfield
 			unset($attrs['size']);
 			$attrs['class'] = (empty($attrs['class']) ? '' : $attrs['class'] . ' ') . 'InputfieldMaxWidth';
 		}
-
-
-        //$attrs['value'] = $this->fromDBTimeString($attrs['value']);
 
 		return $attrs;
 	}
