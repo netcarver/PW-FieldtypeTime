@@ -166,6 +166,8 @@ class FieldtypeTime extends FieldtypeText
             return $max-1;
         }
 
+        $val = sprintf("%02d", $val);
+
         return $val;
     }
 
