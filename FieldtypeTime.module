@@ -145,6 +145,7 @@ class FieldtypeTime extends FieldtypeText
         return $lower_ok && $upper_ok;
     }
 
+
     public static function limit($val, $max, $min=0)
     {
         $val = (int) $val;
@@ -171,6 +172,7 @@ class FieldtypeTime extends FieldtypeText
         return $val;
     }
 
+
     /**
      * Given a format, converts the given $time to it.
      */
@@ -191,61 +193,61 @@ class FieldtypeTime extends FieldtypeText
 
 
         switch ($format) {
-            case "SSS":
-                $val  = (int) $parts['secs'];
-                $val += $parts['mins']  *   60;
-                $val += $parts['hours'] * 3600;
-                break;
+        case "SSS":
+            $val  = (int) $parts['secs'];
+            $val += $parts['mins']  *   60;
+            $val += $parts['hours'] * 3600;
+            break;
 
-            case "MMM":
-                $val  = $parts['mins'];
-                $val += $parts['hours'] * 60;
-                break;
+        case "MMM":
+            $val  = $parts['mins'];
+            $val += $parts['hours'] * 60;
+            break;
 
-            case 'HHH':
-                $val = $parts['hours'] * 1;
-                break;
+        case 'HHH':
+            $val = $parts['hours'] * 1;
+            break;
 
-            case 'HH24':
-                if (!self::is24($parts['hours'])) {
-                    return $str;
-                }
-                break;
+        case 'HH24':
+            if (!self::is24($parts['hours'])) {
+                return $str;
+            }
+            break;
 
-            case 'HH24MM':
-                if (!self::is24($parts['hours']) || !self::is60($parts['mins'])) {
-                    return $str;
-                }
-                $val = $parts['hours'] . $glue . $parts['mins'];
-                break;
+        case 'HH24MM':
+            if (!self::is24($parts['hours']) || !self::is60($parts['mins'])) {
+                return $str;
+            }
+            $val = $parts['hours'] . $glue . $parts['mins'];
+            break;
 
-            case 'HHHMM':
-                if (!self::is60($parts['mins'])) {
-                    return $str;
-                }
-                $val = $parts['hours'] . $glue . $parts['mins'];
-                break;
+        case 'HHHMM':
+            if (!self::is60($parts['mins'])) {
+                return $str;
+            }
+            $val = $parts['hours'] . $glue . $parts['mins'];
+            break;
 
-            case 'HH24MMSS':
-                if (!self::is24($parts['hours']) || !self::is60($parts['mins']) || !self::is60($parts['secs'])) {
-                    return $str;
-                }
-                $val = $parts['hours'] . $glue . $parts['mins'] . $glue . $parts['secs'];
-                break;
+        case 'HH24MMSS':
+            if (!self::is24($parts['hours']) || !self::is60($parts['mins']) || !self::is60($parts['secs'])) {
+                return $str;
+            }
+            $val = $parts['hours'] . $glue . $parts['mins'] . $glue . $parts['secs'];
+            break;
 
-            case 'HHHMMSS':
-                if (!self::is60($parts['mins']) || !self::is60($parts['secs'])) {
-                    return $str;
-                }
-                $val = $parts['hours'] . $glue . $parts['mins'] . $glue . $parts['secs'];
-                break;
+        case 'HHHMMSS':
+            if (!self::is60($parts['mins']) || !self::is60($parts['secs'])) {
+                return $str;
+            }
+            $val = $parts['hours'] . $glue . $parts['mins'] . $glue . $parts['secs'];
+            break;
 
-            case 'MMSS':
-                if (!self::is60($parts['mins']) || !self::is60($parts['secs'])) {
-                    return $str;
-                }
-                $val = $parts['mins'] . $glue . $parts['secs'];
-                break;
+        case 'MMSS':
+            if (!self::is60($parts['mins']) || !self::is60($parts['secs'])) {
+                return $str;
+            }
+            $val = $parts['mins'] . $glue . $parts['secs'];
+            break;
         }
 
         if (is_int($val)) {
@@ -297,59 +299,57 @@ class FieldtypeTime extends FieldtypeText
         }
 
         switch ($format) {
-            case "SSS":
-                $val = (int) $str;
-                $parts['hours'] = $val / 3600;
-                $parts['mins']  = $val / 60 % 60;
-                $parts['secs']  = $val % 60;
-                break;
+        case "SSS":
+            $val = (int) $str;
+            $parts['hours'] = $val / 3600;
+            $parts['mins']  = $val / 60 % 60;
+            $parts['secs']  = $val % 60;
+            break;
 
-            case "MMM":
-                $val = (int) $str;
-                $val *= 60;
-                $parts['hours'] = $val / 3600;
-                $parts['mins']  = $val / 60 % 60;
-                break;
+        case "MMM":
+            $val = (int) $str;
+            $val *= 60;
+            $parts['hours'] = $val / 3600;
+            $parts['mins']  = $val / 60 % 60;
+            break;
 
-            case 'HHH':
-                $parts['hours'] = (int) $str;
-                break;
+        case 'HHH':
+            $parts['hours'] = (int) $str;
+            break;
 
-            case 'HH24':
-                $parts['hours'] = self::limit($str, 24);
-                break;
+        case 'HH24':
+            $parts['hours'] = self::limit($str, 24);
+            break;
 
-            case 'HH24MM':
-                $parts['hours'] = self::limit($bits[0], 24);
-                $parts['mins']  = self::limit($bits[1], 60);
-                break;
+        case 'HH24MM':
+            $parts['hours'] = self::limit($bits[0], 24);
+            $parts['mins']  = self::limit($bits[1], 60);
+            break;
 
-            case 'HH24MMSS':
-                $parts['hours'] = self::limit($bits[0], 24);
-                $parts['mins']  = self::limit($bits[1], 60);
-                $parts['secs']  = self::limit($bits[2], 60);
-                break;
+        case 'HH24MMSS':
+            $parts['hours'] = self::limit($bits[0], 24);
+            $parts['mins']  = self::limit($bits[1], 60);
+            $parts['secs']  = self::limit($bits[2], 60);
+            break;
 
-            case 'HHHMM':
-                $parts['hours'] = $bits[0];
-                $parts['mins']  = self::limit($bits[1], 60);
-                break;
+        case 'HHHMM':
+            $parts['hours'] = $bits[0];
+            $parts['mins']  = self::limit($bits[1], 60);
+            break;
 
-            case 'HHHMMSS':
-                $parts['hours'] = $bits[0];
-                $parts['mins']  = self::limit($bits[1], 60);
-                $parts['secs']  = self::limit($bits[2], 60);
-                break;
+        case 'HHHMMSS':
+            $parts['hours'] = $bits[0];
+            $parts['mins']  = self::limit($bits[1], 60);
+            $parts['secs']  = self::limit($bits[2], 60);
+            break;
 
-            case 'MMSS':
-                $parts['mins']  = self::limit($bits[0], 60);
-                $parts['secs']  = self::limit($bits[1], 60);
-                break;
-
+        case 'MMSS':
+            $parts['mins']  = self::limit($bits[0], 60);
+            $parts['secs']  = self::limit($bits[1], 60);
+            break;
         }
 
         return self::partsToDBTime($parts);
-
     }
 
 
@@ -469,23 +469,15 @@ class FieldtypeTime extends FieldtypeText
         }
         $inputfields->add($f);
 
-		$f = $this->modules->get('InputfieldCheckbox');
-		$f->attr('name', 'useColons');
-		$f->label = $this->_('Use colons');
-		$f->description = $this->_('When checked, colons will be output between the hours, minutes and seconds.');
-		$f->attr('value', 1);
+        $f = $this->modules->get('InputfieldCheckbox');
+        $f->attr('name', 'useColons');
+        $f->label = $this->_('Use colons');
+        $f->description = $this->_('When checked, colons will be output between the hours, minutes and seconds.');
+        $f->attr('value', 1);
         if ($field->useColons) {
             $f->attr('checked', 'checked');
         }
-		$inputfields->append($f);
-
-		/* $f = $this->modules->get('InputfieldText'); */
-		/* $f->setAttribute('name', 'placeholder'); */
-		/* $f->label = $this->_('Placeholder Text'); */
-		/* $f->setAttribute('value', $this->attr('placeholder')); */
-		/* $f->description = $this->_('Optional placeholder phrase of text that appears in the field when blank.'); */
-		/* $f->collapsed = Inputfield::collapsedBlank; */
-		/* $inputfields->append($f); */
+        $inputfields->append($f);
 
         return $inputfields;
     }
