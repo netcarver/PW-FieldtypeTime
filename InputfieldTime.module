@@ -41,11 +41,16 @@ class InputfieldTime extends Inputfield
 
     public function ___render()
     {
-        $out  = "\n<div class=\"input-group clockpicker\" data-autoclose=\"true\">";
-        $out .= "\n<input " . $this->getAttributesString() . " />";
-        $out .= "\n<span class=\"input-group-addon\">\n\t<span class=\"fa fa-clock-o\"></span>\n</span>";
-        $out .= "\n<script type=\"text/javascript\">\$('.clockpicker').clockpicker();\n</script>";
-        $out .= "\n</div>";
+        $out = '';
+        if ('HH24MM' == $this->format) {
+            $out .= "\n<div class=\"input-group clockpicker\" data-autoclose=\"true\">";
+            $out .= "\n<input " . $this->getAttributesString() . " />";
+            $out .= "\n<span class=\"input-group-addon\">\n\t<span class=\"fa fa-clock-o\"></span>\n</span>";
+            $out .= "\n<script type=\"text/javascript\">\$('.clockpicker').clockpicker();\n</script>";
+            $out .= "\n</div>";
+        } else {
+            $out .= "\n<input " . $this->getAttributesString() . " />";
+        }
         return $out;
     }
 
