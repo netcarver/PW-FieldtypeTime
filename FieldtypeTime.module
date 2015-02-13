@@ -371,6 +371,7 @@ class FieldtypeTime extends FieldtypeText
     {
         $inputfield = $this->modules->get('InputfieldTime');
         $inputfield->class = $this->className();
+        $inputfield->attr('format', $field->format);
         return $inputfield;
     }
 

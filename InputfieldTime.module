@@ -22,6 +22,13 @@ class InputfieldTime extends Inputfield
     }
 
 
+    public function __construct()
+    {
+        parent::__construct();
+        $this->setAttribute('inhibitClockPicker', 0); // Set to zero if clock picker not wanted
+    }
+
+
     public function init()
     {
         $this->attr('type', 'text');
@@ -41,7 +48,16 @@ class InputfieldTime extends Inputfield
 
     public function ___render()
     {
-        $out = "\n<input " . $this->getAttributesString() . " />";
+        $out = '';
+        if (!$this->getAttribute('inhibitClockPicker') && 'HH24MM' == $this->format) {
+            $out .= "\n<div class=\"input-group clockpicker\" data-autoclose=\"true\">";
+            $out .= "\n<input " . $this->getAttributesString() . " />";
+            $out .= "\n<span class=\"input-group-addon\">\n\t<span class=\"fa fa-clock-o\"></span>\n</span>";
+            $out .= "\n<script type=\"text/javascript\">\$('.clockpicker').clockpicker();\n</script>";
+            $out .= "\n</div>";
+        } else {
+            $out .= "\n<input " . $this->getAttributesString() . " />";
+        }
         return $out;
     }
 
@@ -124,4 +140,18 @@ class InputfieldTime extends Inputfield
         return $this;
     }
 
+
+    public function ___getConfigInputfields()
+    {
+        $inputfields = parent::___getConfigInputfields();
+
+        $field = $this->modules->get('InputfieldCheckbox');
+        $field->label = $this->_('Inhibit display of clock-picker for HH24MM time fields?');
+        $field->attr('name', 'inhibitClockPicker');
+        $field->attr('value', 1);
+        $field->attr('checked', $this->getAttribute('inhibitClockPicker') ? 'checked' : '');
+        $inputfields->append($field);
+
+        return $inputfields;
+    }
 }
