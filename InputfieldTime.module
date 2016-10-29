@@ -61,8 +61,8 @@ class InputfieldTime extends Inputfield
         $out = '';
         if (!$this->getAttribute('inhibitClockPicker') && 'HH24MM' == $this->format) {
             $id = $this->id;
-            $out .= "\n<div class=\"input-group clockpicker\" data-autoclose=\"true\">";
-            $out .= "\n<input " . $this->getAttributesString() . " onclick=\"InputFieldTimePickerTrigger('#$id')\"/>";
+            $out .= "\n<div id=\"{$id}-clockpicker\" class=\"input-group clockpicker\" data-autoclose=\"true\" onclick=\"InputFieldTimePickerTrigger('#{$id}-clockpicker')\">";
+            $out .= "\n<input " . $this->getAttributesString() . " />";
             $out .= "\n<span class=\"input-group-addon\">\n\t<span class=\"fa fa-clock-o\"></span>\n</span>";
             $out .= "\n</div>";
         } else {

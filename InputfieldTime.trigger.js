@@ -1,13 +1,15 @@
 function InputFieldTimePickerTrigger(id) {
-    var parent = $(id).parent();
-    var picker = parent.data('clockpicker');
+    var element = $(id);
+    var picker = element.data('clockpicker');
 
     if (!picker) {
-        parent.clockpicker();
-        picker = parent.data('clockpicker');
+        element.clockpicker();
+        picker = element.data('clockpicker');
     }
 
-    picker.toggle();
+    if (picker) {
+        picker.show();
+    }
 }
 
 $(document).on('closed', '.InputfieldRepeaterItem', function(e) {
