@@ -11,13 +11,14 @@ class InputfieldTime extends Inputfield
         return array(
             'title'     => __('Inputfield Time', __FILE__),
             'summary'   => __('Allows entry of times in various formats', __FILE__),
-            'version'   => 10,
+            'version'   => '0.2.0',
             'permanent' => false,
             'autoload'  => false,
             'singular'  => false,
             'requires'  => array('FieldtypeTime'),
             'installs'  => array('FieldtypeTime'),
             'author'    => 'S. Dickinson, QBox.co',
+            'href'      => 'https://processwire.com/talk/topic/7857-module-fieldtypetime-inputfieldtime/',
         );
     }
 
@@ -61,7 +62,7 @@ class InputfieldTime extends Inputfield
         if (!$this->getAttribute('inhibitClockPicker') && 'HH24MM' == $this->format) {
             $id = $this->id;
             $out .= "\n<div class=\"input-group clockpicker\" data-autoclose=\"true\">";
-            $out .= "\n<input " . $this->getAttributesString() . " onclick=\"InputFieldTimePickerTrigger('#$id')\"/>"; // This actually calls the function!
+            $out .= "\n<input " . $this->getAttributesString() . " onclick=\"InputFieldTimePickerTrigger('#$id')\"/>";
             $out .= "\n<span class=\"input-group-addon\">\n\t<span class=\"fa fa-clock-o\"></span>\n</span>";
             $out .= "\n</div>";
         } else {
