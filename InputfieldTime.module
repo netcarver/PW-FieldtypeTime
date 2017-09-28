@@ -11,7 +11,7 @@ class InputfieldTime extends Inputfield
         return array(
             'title'     => __('Inputfield Time', __FILE__),
             'summary'   => __('Allows entry of times in various formats', __FILE__),
-            'version'   => '0.2.0',
+            'version'   => '0.2.1',
             'permanent' => false,
             'autoload'  => false,
             'singular'  => false,

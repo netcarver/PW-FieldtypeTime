@@ -17,7 +17,7 @@ class FieldtypeTime extends FieldtypeText
         return array(
             'title'     => __('Fieldtype Time', __FILE__),
             'summary'   => __('Stores a time in HHH:MM:SS format', __FILE__),
-            'version'   => 1,
+            'version'   => '1.0.1',
             'permanent' => false,
             'autoload'  => false,
             'singular'  => false,
