@@ -12,8 +12,6 @@
 class FieldtypeTime extends FieldtypeText
 {
 
-    const blank = "00:00:00";
-
     public static function getModuleInfo()
     {
         return array(
