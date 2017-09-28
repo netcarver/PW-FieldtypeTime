@@ -179,7 +179,7 @@ class FieldtypeTime extends FieldtypeText
     static public function timeToFormattedString($time, $format, $use_colons)
     {
         if (empty($time)) {
-            $time = '00:00:00';
+            $time = '';
         }
 
         if (empty($format)) {
@@ -268,7 +268,7 @@ class FieldtypeTime extends FieldtypeText
     static public function formattedStringToTime($str, $format)
     {
         if (empty($str)) {
-            $str = '00:00:00';
+            $str = '';
         }
 
         if (empty($format)) {
@@ -394,7 +394,7 @@ class FieldtypeTime extends FieldtypeText
     protected function _sanitizeValue($value)
     {
         if (empty($value)) {
-            return '00:00:00';
+            return '';
         }
 
         return preg_replace('#[^\d:-]#', '', $value);

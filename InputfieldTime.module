@@ -101,8 +101,8 @@ class InputfieldTime extends Inputfield
         $format   = $this->format;
         $colons   = $this->useColons;
 
-        if (!strlen("$value")) {
-            $value = '00:00:00';
+        if (!isset($value) || !strlen("$value")) {
+            return $value;
         }
 
         $negative = substr($value, 0, 1) === '-';
