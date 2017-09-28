@@ -21,7 +21,7 @@ class FieldtypeTime extends FieldtypeText
             'permanent' => false,
             'autoload'  => false,
             'singular'  => false,
-            'author'    => 'S. Dickinson, QBox.co',
+            'author'    => 'S. Dickinson',
         );
     }
 

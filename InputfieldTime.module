@@ -17,7 +17,7 @@ class InputfieldTime extends Inputfield
             'singular'  => false,
             'requires'  => array('FieldtypeTime'),
             'installs'  => array('FieldtypeTime'),
-            'author'    => 'S. Dickinson, QBox.co',
+            'author'    => 'S. Dickinson',
             'href'      => 'https://processwire.com/talk/topic/7857-module-fieldtypetime-inputfieldtime/',
         );
     }
