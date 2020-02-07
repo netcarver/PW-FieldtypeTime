@@ -9,15 +9,15 @@ class InputfieldTime extends Inputfield
     public static function getModuleInfo()
     {
         return array(
-            'title'     => __('Inputfield Time', __FILE__),
+            'title'     => __('Time', __FILE__),
             'summary'   => __('Allows entry of times in various formats', __FILE__),
-            'version'   => '0.2.1',
+            'version'   => '0.2.2',
             'permanent' => false,
             'autoload'  => false,
             'singular'  => false,
             'requires'  => array('FieldtypeTime'),
             'installs'  => array('FieldtypeTime'),
-            'author'    => 'S. Dickinson',
+            'author'    => 'netcarver',
             'href'      => 'https://processwire.com/talk/topic/7857-module-fieldtypetime-inputfieldtime/',
         );
     }
@@ -80,6 +80,7 @@ class InputfieldTime extends Inputfield
             unset($attrs['size']);
             $attrs['class'] = (empty($attrs['class']) ? '' : $attrs['class'] . ' ') . 'InputfieldMaxWidth';
         }
+        $attrs['placeholder'] = "PLACEHOLDER";
         return $attrs;
     }
 
