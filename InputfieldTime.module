@@ -80,7 +80,7 @@ class InputfieldTime extends Inputfield
             unset($attrs['size']);
             $attrs['class'] = (empty($attrs['class']) ? '' : $attrs['class'] . ' ') . 'InputfieldMaxWidth';
         }
-        $attrs['placeholder'] = "PLACEHOLDER";
+        $attrs['placeholder'] = "00:00";
         return $attrs;
     }
 
