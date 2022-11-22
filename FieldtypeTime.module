@@ -462,7 +462,7 @@ class FieldtypeTime extends FieldtypeText
         $f->label = $this->_('Time Format');
         foreach (self::getTimeFormats() as $format => $info) {
             $f->addOption($format, $info['desc']);
-            if(strpos($field->format, $format) !== false) {
+            if($field->format == $format) {
                 $f->attr('value', $format);
             }
         }
