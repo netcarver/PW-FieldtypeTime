@@ -27,6 +27,7 @@ class InputfieldTime extends Inputfield
     {
         parent::__construct();
         $this->setAttribute('inhibitClockPicker', 0); // Set to zero if clock picker not wanted
+        $this->setAttribute('htmlInput', 0);
     }
 
 
@@ -59,14 +60,28 @@ class InputfieldTime extends Inputfield
     public function ___render()
     {
         $out = '';
-        if (!$this->getAttribute('inhibitClockPicker') && 'HH24MM' == $this->format) {
+        $format = $this->hasField->format;
+        $htmlCompatibleFormat = in_array($format, ['HH24MM', 'HH24MMSS']);
+
+        if ($this->htmlInput && $htmlCompatibleFormat) {
+          $this->setAttribute('type', 'time');
+          if($format == "HH24MMSS"){
+            $this->setAttribute('step', 1);
+          }
+          if($this->wire()->adminTheme->className() == "AdminThemeUikit") {
+            $this->class('uk-input');
+          }
+          $out .= "\n<input " . $this->getAttributesString() . "/>";
+        } else {
+          if (!$this->getAttribute('inhibitClockPicker') && 'HH24MM' == $this->format) {
             $id = $this->id;
             $out .= "\n<div class=\"input-group clockpicker\" data-autoclose=\"true\">";
             $out .= "\n<input " . $this->getAttributesString() . " onclick=\"InputFieldTimePickerTrigger('#$id')\"/>";
             $out .= "\n<span class=\"input-group-addon\">\n\t<span class=\"fa fa-clock-o\"></span>\n</span>";
             $out .= "\n</div>";
-        } else {
+          } else {
             $out .= "\n<input " . $this->getAttributesString() . " />";
+          }
         }
         return $out;
     }
@@ -80,7 +95,7 @@ class InputfieldTime extends Inputfield
             unset($attrs['size']);
             $attrs['class'] = (empty($attrs['class']) ? '' : $attrs['class'] . ' ') . 'InputfieldMaxWidth';
         }
-        $attrs['placeholder'] = "PLACEHOLDER";
+        $attrs['placeholder'] = "00:00";
         return $attrs;
     }
 
@@ -158,6 +173,13 @@ class InputfieldTime extends Inputfield
         $field->attr('name', 'inhibitClockPicker');
         $field->attr('value', 1);
         $field->attr('checked', $this->getAttribute('inhibitClockPicker') ? 'checked' : '');
+        $inputfields->append($field);
+
+        $field = $this->modules->get('InputfieldCheckbox');
+        $field->label = $this->_('Use browser native input?');
+        $field->attr('name', 'htmlInput');
+        $field->attr('value', 1);
+        $field->attr('checked', $this->getAttribute('htmlInput') ? 'checked' : '');
         $inputfields->append($field);
 
         return $inputfields;
