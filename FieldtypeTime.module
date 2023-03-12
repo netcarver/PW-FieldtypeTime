@@ -505,15 +505,14 @@ class FieldtypeTime extends FieldtypeText
     {
         $inputfields = parent::___getConfigInputfields($field);
 
+        $ff = $field->format ?? '';
         $f = $this->modules->get('InputfieldSelect');
         $f->attr('name', 'format');
         $f->label = $this->_('Time Format');
         foreach (self::getTimeFormats() as $format => $info) {
             $f->addOption($format, $info['desc']);
-            if(strpos($field->format ?? '', $format) !== false) {
-                $f->attr('value', $format);
-            }
         }
+        $f->attr('value', $ff);
         $inputfields->add($f);
 
         $f = $this->modules->get('InputfieldCheckbox');
