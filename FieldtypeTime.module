@@ -1,4 +1,10 @@
-<?php
+<?php declare(strict_types=1);
+
+namespace ProcessWire;
+
+use ProcessWire\Page;
+use ProcessWire\Field;
+use ProcessWire\InputfieldTime;
 
 /**
  * ProcessWire Time Fieldtype
@@ -11,21 +17,30 @@
  */
 class FieldtypeTime extends FieldtypeText
 {
+    const MYCLASS = 'FieldtypeTime';
 
     public static function getModuleInfo()
     {
-        return array(
-            'title'     => __('Time', __FILE__),
-            'summary'   => __('Stores a time in HHH:MM:SS format', __FILE__),
-            'version'   => '1.0.2',
+        return [
+            'name'      => self::MYCLASS,
+            'title'     => __('Time'),
+            'summary'   => __('Stores a time'),
+            'version'   => '2.0.0',
             'permanent' => false,
             'autoload'  => false,
             'singular'  => false,
             'author'    => 'Netcarver',
-        );
+            'requires'  => [
+                'ProcessWire>3.0.33',
+                'PHP>=7.2.0',
+            ],
+        ];
     }
 
+
     static protected $formats = null;
+
+
 
     /**
      * Access our defined time formats & descriptions.
@@ -33,38 +48,47 @@ class FieldtypeTime extends FieldtypeText
     static public function getTimeFormats($format = null)
     {
         if (null === self::$formats) {
-            self::$formats = array(
-                'HH24'      => array(
-                    'desc' => __("Hours (0-24)", __FILE__),
-                ),
-                'HH24MM'    => array(
-                    'desc' => __("Hours (0-24) & minutes (00-59)", __FILE__),
-                ),
-                'HH24MMSS'  => array(
-                    'desc' => __("Hours (0-24), minutes (00-59) & seconds (00-59)", __FILE__),
-                ),
-                'HHH'        => array(
-                    'desc' => __("Hours (Integer 0-800)", __FILE__),
-                ),
-                'HHHMM'      => array(
-                    'desc' => __("Hours (0-800) & minutes (00-59)", __FILE__),
-                ),
-                'HHHMMSS'    => array(
-                    'desc' => __("Hours (0-800), minutes (00-59) & seconds (00-59)", __FILE__),
-                ),
-                'MMM'         => array(
-                    'desc' => __("Minutes (Integer)", __FILE__),
-                ),
-                'SSS'         => array(
-                    'desc' => __("Seconds (Integer)", __FILE__),
-                ),
-                'MMSS'       => array(
-                    'desc' => __("Minutes (00-59) & seconds (00-59).", __FILE__),
-                ),
-            );
+            self::$formats = [
+                'HH24'      => [
+                    'desc' => __('Hours (0-24)'),
+                    'placeholder' => '00',
+                ],
+                'HH24MM'    => [
+                    'desc' => __('Hours (0-24) and minutes (00-59)'),
+                    'placeholder' => '00:00',
+                ],
+                'HH24MMSS'  => [
+                    'desc' => __('Hours (0-24), minutes (00-59), and seconds (00-59)'),
+                    'placeholder' => '00:00:00',
+                ],
+                'HHH'        => [
+                    'desc' => __('Hours (Integer 0-800)'),
+                    'placeholder' => '000',
+                ],
+                'HHHMM'      => [
+                    'desc' => __('Hours (0-800) and minutes (00-59)'),
+                    'placeholder' => '000:00',
+                ],
+                'HHHMMSS'    => [
+                    'desc' => __('Hours (0-800), minutes (00-59), and seconds (00-59)'),
+                    'placeholder' => '000:00:00',
+                ],
+                'MMM'         => [
+                    'desc' => __('Minutes (Integer)'),
+                    'placeholder' => '00',
+                ],
+                'SSS'         => [
+                    'desc' => __('Seconds (Integer)'),
+                    'placeholder' => '00',
+                ],
+                'MMSS'       => [
+                    'desc' => __('Minutes (00-59) and seconds (00-59)'),
+                    'placeholder' => '00:00',
+                ],
+            ];
         }
 
-        if (is_string($format) && !empty($format) && in_array($format, $formats)) {
+        if (is_string($format) && !empty($format) && array_key_exists($format, self::$formats)) {
             return self::$formats[$format];
         }
 
@@ -78,12 +102,12 @@ class FieldtypeTime extends FieldtypeText
      */
     public static function getTimeParts($t = null)
     {
-        $parts = array(
+        $parts = [
             'sign'  => '',
             'hours' => '00',
             'mins'  => '00',
             'secs'  => '00',
-        );
+        ];
 
         if (is_string($t)) {
             $t = trim($t);
@@ -108,10 +132,11 @@ class FieldtypeTime extends FieldtypeText
     }
 
 
+
     /**
      * Converts an array of time parts into a DB time string.
      */
-    public static function partsToDBTime(array $parts, $glue=':')
+    public static function partsToDBTime(array $parts, string $glue=':') : string
     {
         $sign = array_shift($parts);
         $dbtime = $sign . implode($glue, $parts);
@@ -120,28 +145,35 @@ class FieldtypeTime extends FieldtypeText
     }
 
 
+
     /**
      * Checks the hour part is within the 24 hour range.
      */
-    public static function is24($val)
+    public static function is24($val) : bool
     {
-        $lower_ok = (int) $val >= 0;
-        $upper_ok = (int) $val < 24;
+        $val = (int) $val;
+
+        $lower_ok = $val >= 0;
+        $upper_ok = $val < 24;
 
         return $lower_ok && $upper_ok;
     }
+
 
 
     /**
      * Checks the $val is within the range 0-59 inclusive.
      */
-    public static function is60($val)
+    public static function is60($val) : bool
     {
-        $lower_ok = (int) $val >= 0;
-        $upper_ok = (int) $val < 60;
+        $val = (int) $val;
+
+        $lower_ok = $val >= 0;
+        $upper_ok = $val < 60;
 
         return $lower_ok && $upper_ok;
     }
+
 
 
     public static function limit($val, $max, $min=0)
@@ -165,16 +197,17 @@ class FieldtypeTime extends FieldtypeText
             return $max-1;
         }
 
-        $val = sprintf("%02d", $val);
+        $val = sprintf('%02d', $val);
 
         return $val;
     }
 
 
+
     /**
      * Given a format, converts the given $time to it.
      */
-    static public function timeToFormattedString($time, $format, $use_colons)
+    static public function timeToFormattedString($time, string $format, int $use_colons) : string
     {
         if (empty($time)) {
             $time = '';
@@ -191,13 +224,13 @@ class FieldtypeTime extends FieldtypeText
 
 
         switch ($format) {
-        case "SSS":
+        case 'SSS':
             $val  = (int) $parts['secs'];
             $val += $parts['mins']  *   60;
             $val += $parts['hours'] * 3600;
             break;
 
-        case "MMM":
+        case 'MMM':
             $val  = $parts['mins'];
             $val += $parts['hours'] * 60;
             break;
@@ -208,52 +241,54 @@ class FieldtypeTime extends FieldtypeText
 
         case 'HH24':
             if (!self::is24($parts['hours'])) {
-                return $str;
+                return '';
             }
+            $val = $parts['hours'];
             break;
 
         case 'HH24MM':
             if (!self::is24($parts['hours']) || !self::is60($parts['mins'])) {
-                return $str;
+                return '';
             }
             $val = $parts['hours'] . $glue . $parts['mins'];
             break;
 
         case 'HHHMM':
             if (!self::is60($parts['mins'])) {
-                return $str;
+                return '';
             }
             $val = $parts['hours'] . $glue . $parts['mins'];
             break;
 
         case 'HH24MMSS':
             if (!self::is24($parts['hours']) || !self::is60($parts['mins']) || !self::is60($parts['secs'])) {
-                return $str;
+                return '';
             }
             $val = $parts['hours'] . $glue . $parts['mins'] . $glue . $parts['secs'];
             break;
 
         case 'HHHMMSS':
             if (!self::is60($parts['mins']) || !self::is60($parts['secs'])) {
-                return $str;
+                return '';
             }
             $val = $parts['hours'] . $glue . $parts['mins'] . $glue . $parts['secs'];
             break;
 
         case 'MMSS':
             if (!self::is60($parts['mins']) || !self::is60($parts['secs'])) {
-                return $str;
+                return '';
             }
             $val = $parts['mins'] . $glue . $parts['secs'];
             break;
         }
 
         if (is_int($val)) {
-            $val = "$val";
+            $val = (string) $val;
         }
 
         return $val;
     }
+
 
 
     /**
@@ -273,7 +308,7 @@ class FieldtypeTime extends FieldtypeText
             $format = 'HH24MMSS';
         }
 
-        $str = preg_replace("[^\d:-]", '', $str);
+        $str = preg_replace('[^\d:-]', '', $str);
         $parts = self::getTimeParts();
 
         if (false === strpos($str, ':')) {
@@ -297,14 +332,14 @@ class FieldtypeTime extends FieldtypeText
         }
 
         switch ($format) {
-        case "SSS":
+        case 'SSS':
             $val = (int) $str;
             $parts['hours'] = $val / 3600;
             $parts['mins']  = $val / 60 % 60;
             $parts['secs']  = $val % 60;
             break;
 
-        case "MMM":
+        case 'MMM':
             $val = (int) $str;
             $val *= 60;
             $parts['hours'] = $val / 3600;
@@ -362,14 +397,23 @@ class FieldtypeTime extends FieldtypeText
     }
 
 
+
     /**
      *
      */
-    public function getInputfield(Page $page, Field $field)
+    public function getInputfield(Page $page, Field $field) : InputfieldTime
     {
+
+        $format = $field->format;
+
         $inputfield = $this->modules->get('InputfieldTime');
         $inputfield->class = $this->className();
-        $inputfield->attr('format', $field->format);
+        $inputfield->attr('format', $format);
+
+        $f_info = self::getTimeFormats($format);
+
+        $inputfield->attr('title', $f_info['desc']);
+        $inputfield->attr('placeholder', $f_info['placeholder']);
         return $inputfield;
     }
 
@@ -389,7 +433,7 @@ class FieldtypeTime extends FieldtypeText
      * Common sanitise routine...
      * Sanitize a value assumed to be a MySQL time format...
      */
-    protected function _sanitizeValue($value)
+    protected function _sanitizeValue(string $value) : string
     {
         if (empty($value)) {
             return '';
@@ -419,6 +463,7 @@ class FieldtypeTime extends FieldtypeText
     }
 
 
+
     /**
      *
      */
@@ -432,6 +477,7 @@ class FieldtypeTime extends FieldtypeText
     }
 
 
+
     /**
      * Convert value from time to formatted string
      */
@@ -441,6 +487,7 @@ class FieldtypeTime extends FieldtypeText
     }
 
 
+
     /**
      * Convert value from DB time field to formatted string
      */
@@ -448,6 +495,7 @@ class FieldtypeTime extends FieldtypeText
     {
         return $this->timeToFormattedString($value, $field->format, $field->useColons);
     }
+
 
 
     /**
@@ -462,7 +510,7 @@ class FieldtypeTime extends FieldtypeText
         $f->label = $this->_('Time Format');
         foreach (self::getTimeFormats() as $format => $info) {
             $f->addOption($format, $info['desc']);
-            if(strpos($field->format, $format) !== false) {
+            if(strpos($field->format ?? '', $format) !== false) {
                 $f->attr('value', $format);
             }
         }

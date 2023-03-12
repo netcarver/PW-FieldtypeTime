@@ -1,26 +1,40 @@
-<?php
+<?php declare(strict_types=1);
+
+namespace ProcessWire;
+
+use ProcessWire\Inputfied;
+use ProcessWire\FieldtypeTime;
 
 /**
  * An Inputfield for handling time inputs.
  */
-
 class InputfieldTime extends Inputfield
 {
+    const MYCLASS = 'InputfieldTime';
+
     public static function getModuleInfo()
     {
-        return array(
-            'title'     => __('Time', __FILE__),
-            'summary'   => __('Allows entry of times in various formats', __FILE__),
-            'version'   => '0.2.2',
+        return [
+            'name'      => self::MYCLASS,
+            'title'     => __('Time'),
+            'summary'   => __('Allows entry of times in various formats'),
+            'version'   => '1.0.0',
             'permanent' => false,
             'autoload'  => false,
             'singular'  => false,
-            'requires'  => array('FieldtypeTime'),
-            'installs'  => array('FieldtypeTime'),
-            'author'    => 'netcarver',
+            'requires'  => [
+                'ProcessWire>3.0.33',
+                'PHP>=7.2.0',
+                'FieldtypeTime',
+            ],
+            'installs'  => [
+                'FieldtypeTime',
+            ],
+            'author'    => 'Netcarver',
             'href'      => 'https://processwire.com/talk/topic/7857-module-fieldtypetime-inputfieldtime/',
-        );
+        ];
     }
+
 
 
     public function __construct()
@@ -28,6 +42,7 @@ class InputfieldTime extends Inputfield
         parent::__construct();
         $this->setAttribute('inhibitClockPicker', 0); // Set to zero if clock picker not wanted
     }
+
 
 
     public function init()
@@ -41,9 +56,10 @@ class InputfieldTime extends Inputfield
     }
 
 
+
     public function ___renderValue()
     {
-        return htmlspecialchars($this->value, ENT_QUOTES, "UTF-8");
+        return htmlspecialchars($this->value, ENT_QUOTES, 'UTF-8');
     }
 
 
@@ -56,17 +72,19 @@ class InputfieldTime extends Inputfield
     }
 
 
+
     public function ___render()
     {
+        $attrs = $this->getAttributesString();
         $out = '';
         if (!$this->getAttribute('inhibitClockPicker') && 'HH24MM' == $this->format) {
             $id = $this->id;
             $out .= "\n<div class=\"input-group clockpicker\" data-autoclose=\"true\">";
-            $out .= "\n<input " . $this->getAttributesString() . " onclick=\"InputFieldTimePickerTrigger('#$id')\"/>";
+            $out .= "\n<input $attrs onclick=\"InputFieldTimePickerTrigger('#$id')\"/>";
             $out .= "\n<span class=\"input-group-addon\">\n\t<span class=\"fa fa-clock-o\"></span>\n</span>";
             $out .= "\n</div>";
         } else {
-            $out .= "\n<input " . $this->getAttributesString() . " />";
+            $out .= "\n<input $attrs />";
         }
         return $out;
     }
@@ -80,7 +98,7 @@ class InputfieldTime extends Inputfield
             unset($attrs['size']);
             $attrs['class'] = (empty($attrs['class']) ? '' : $attrs['class'] . ' ') . 'InputfieldMaxWidth';
         }
-        $attrs['placeholder'] = "PLACEHOLDER";
+        /* $attrs['placeholder'] = 'PLACEHOLDER'; */
         return $attrs;
     }
 
@@ -98,9 +116,9 @@ class InputfieldTime extends Inputfield
 
     protected function sanitizeValue($value)
     {
-        $value    = trim($value);
+        $value    = trim($value ?? '');
         $format   = $this->format;
-        $colons   = $this->useColons;
+        /* $colons   = $this->useColons; */
 
         if (!isset($value) || !strlen("$value")) {
             return $value;
@@ -147,6 +165,7 @@ class InputfieldTime extends Inputfield
 
         return $this;
     }
+
 
 
     public function ___getConfigInputfields()
