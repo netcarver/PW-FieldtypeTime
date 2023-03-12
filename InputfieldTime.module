@@ -86,7 +86,6 @@ class InputfieldTime extends Inputfield
                 $this->setAttribute('step', 1);
             }
             $theme = $this->wire()->adminTheme->className();
-            bd($theme);
             if ($theme == 'AdminThemeUikit') {
                 $this->class('uk-input');
             }
