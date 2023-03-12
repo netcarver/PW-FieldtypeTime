@@ -78,7 +78,6 @@ class InputfieldTime extends Inputfield
     {
         $out = '';
         $format = $this->format;
-        $attrs = $this->getAttributesString();
         $html_compat = in_array($format, ['HH24MM', 'HH24MMSS']);
 
         if ($this->htmlInput && $html_compat) {
@@ -86,18 +85,23 @@ class InputfieldTime extends Inputfield
             if ($format == 'HH24MMSS') {
                 $this->setAttribute('step', 1);
             }
-            if ($this->wire()->adminTheme->className() == 'AdminThemeUiKit') {
+            $theme = $this->wire()->adminTheme->className();
+            bd($theme);
+            if ($theme == 'AdminThemeUikit') {
                 $this->class('uk-input');
             }
+            $attrs = $this->getAttributesString();
             $out = "\n<input $attrs />";
         }
         else if (!$this->getAttribute('inhibitClockPicker') && 'HH24MM' == $format) {
             $id = $this->id;
+            $attrs = $this->getAttributesString();
             $out .= "\n<div class=\"input-group clockpicker\" data-autoclose=\"true\">";
             $out .= "\n<input $attrs onclick=\"InputFieldTimePickerTrigger('#$id')\"/>";
             $out .= "\n<span class=\"input-group-addon\">\n\t<span class=\"fa fa-clock-o\"></span>\n</span>";
             $out .= "\n</div>";
         } else {
+            $attrs = $this->getAttributesString();
             $out .= "\n<input $attrs />";
         }
         return $out;
@@ -190,7 +194,6 @@ class InputfieldTime extends Inputfield
         $f->label = $this->_('Inhibit display of clock-picker for HH24MM time fields?');
         $f->attr('name', 'inhibitClockPicker');
         $f->attr('value', 1);
-        $f->attr('columnWidth', 50);
         $f->attr('checked', $this->getAttribute('inhibitClockPicker') ? 'checked' : '');
         $inputfields->append($f);
 
@@ -198,7 +201,6 @@ class InputfieldTime extends Inputfield
         $f->label = $this->_('Use browser native input?');
         $f->attr('name', 'htmlInput');
         $f->attr('value', 1);
-        $f->attr('columnWidth', 50);
         $f->attr('checked', $this->getAttribute('htmlInput') ? 'checked' : '');
         $inputfields->append($f);
 
