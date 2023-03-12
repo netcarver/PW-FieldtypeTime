@@ -76,7 +76,6 @@ class InputfieldTime extends Inputfield
 
     public function ___render()
     {
-        $out = '';
         $format = $this->format;
         $html_compat = in_array($format, ['HH24MM', 'HH24MMSS']);
 
@@ -95,13 +94,17 @@ class InputfieldTime extends Inputfield
         else if (!$this->getAttribute('inhibitClockPicker') && 'HH24MM' == $format) {
             $id = $this->id;
             $attrs = $this->getAttributesString();
-            $out .= "\n<div class=\"input-group clockpicker\" data-autoclose=\"true\">";
-            $out .= "\n<input $attrs onclick=\"InputFieldTimePickerTrigger('#$id')\"/>";
-            $out .= "\n<span class=\"input-group-addon\">\n\t<span class=\"fa fa-clock-o\"></span>\n</span>";
-            $out .= "\n</div>";
+            $out =<<<INPUT
+            <div class="input-group clockpicker" data-autoclose="true">
+                <input $attrs onclick="InputFieldTimePickerTrigger('#$id')" />
+                <span class="input-group-addon">
+                    <span class="fa fa-clock-o"></span>
+                </span>
+            </div>
+            INPUT;
         } else {
             $attrs = $this->getAttributesString();
-            $out .= "\n<input $attrs />";
+            $out = "\n<input $attrs />";
         }
         return $out;
     }
