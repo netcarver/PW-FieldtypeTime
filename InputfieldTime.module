@@ -113,7 +113,7 @@ class InputfieldTime extends Inputfield
 
     protected function sanitizeValue($value)
     {
-        $value    = trim($value);
+        $value    = trim((string)$value);
         $format   = $this->format;
         $colons   = $this->useColons;
 
