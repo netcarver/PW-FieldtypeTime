@@ -49,7 +49,7 @@ class InputfieldTime extends Inputfield
 
 
 
-    public function renderReady(Inputfield $parent = null, $renderValueMode = false) {
+    public function renderReady(?Inputfield $parent = null, $renderValueMode = false) {
         $c = $this->config;
         $c->scripts->add($c->urls->InputfieldTime . 'InputfieldTime.trigger.js');
         $r = parent::renderReady($parent, $renderValueMode);
